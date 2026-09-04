@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab04_puja0009/Source/question3.py
+# Date: 04-09-2026
+# Description: Logistic Classification with L1 regularization on the Ionosphere dataset
+# Usage: python Lab04_puja0009/Source/question3.py
+
 # %%
 import numpy as np
 import pandas as pd

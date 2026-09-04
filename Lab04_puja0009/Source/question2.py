@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab04_puja0009/Source/question2.py
+# Date: 04-09-2026
+# Description: Logistic Classification for multiclass classification using the Iris dataset
+# Usage: python Lab04_puja0009/Source/question2.py
+
 # %%
 import numpy as np
 import pandas as pd

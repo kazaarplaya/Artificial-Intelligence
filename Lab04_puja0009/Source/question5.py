@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab04_puja0009/Source/question5.py
+# Date: 04-09-2026
+# Description: Implement Logistic Classification with different solvers (liblinear, lbfgs, saga) on the MNIST dataset
+# Usage: python Lab04_puja0009/Source/question5.py
+
 # %%
 import numpy as np
 import pandas as pd
