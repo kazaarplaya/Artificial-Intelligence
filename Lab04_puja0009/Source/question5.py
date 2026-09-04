@@ -94,7 +94,7 @@ plt.xlabel("Solver")
 plt.ylabel("Mean Cross-Validation Accuracy")
 plt.title("Logistic Regression Solvers on MNIST")
 
-plt.ylim(0, 1)
+plt.ylim(0.90, .902)
 
 plt.show()
 
