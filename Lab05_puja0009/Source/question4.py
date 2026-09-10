@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab05_puja0009\Source\question4.py
+# Date: 10-09-2026
+# Description: Decision Tree Regressor on California Housing dataset
+# Usage: python Lab05_puja0009\Source\question4.py
+
 # %%
 from sklearn.datasets import load_iris, fetch_california_housing
 from sklearn.model_selection import train_test_split

@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab05_puja0009\Source\question1.py
+# Date: 10-09-2026
+# Description: Logistic Regression model on the Iris dataset
+# Usage: python Lab05_puja0009\Source\question1.py
+
 # %%
 import pandas as pd
 import numpy as np

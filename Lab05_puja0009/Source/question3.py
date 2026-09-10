@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab05_puja0009\Source\question3.py
+# Date: 10-09-2026
+# Description: Plot the ROC Curve and calculate the AUC for a Decision Tree Classifier
+# Usage: python Lab05_puja0009\Source\question3.py
+
 # %%
 import pandas as pd
 import numpy as np
