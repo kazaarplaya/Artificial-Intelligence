@@ -1,3 +1,10 @@
+# Student Name: Hans Pujalte
+# Student FAN: puja0009
+# File: Lab06_puja0009/Source/question1.py
+# Date: 18-09-2026
+# Description: Fetch Adelaide's daily temp
+# Usage: python Lab06_puja0009/Source/question1.py
+
 # %%
 import matplotlib.pyplot as plt
 import pandas as pd
