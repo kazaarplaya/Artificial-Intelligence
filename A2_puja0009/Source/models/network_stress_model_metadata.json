@@ -1,0 +1,173 @@
+{
+  "selected_model": "XGBoost",
+  "data_split": {
+    "train": 0.6,
+    "validation": 0.2,
+    "test": 0.2
+  },
+  "partitions": {
+    "train": {
+      "rows": 31671,
+      "first_target": "2020-09-15 01:00:00+10:00",
+      "last_target": "2024-04-26 23:00:00+10:00"
+    },
+    "validation": {
+      "rows": 10560,
+      "first_target": "2024-04-27 00:00:00+10:00",
+      "last_target": "2025-07-10 23:00:00+10:00"
+    },
+    "test": {
+      "rows": 10560,
+      "first_target": "2025-07-11 00:00:00+10:00",
+      "last_target": "2026-09-23 23:00:00+10:00"
+    }
+  },
+  "features": [
+    "curtailment",
+    "curtailment_solar_utility",
+    "curtailment_wind",
+    "demand",
+    "demand_gross",
+    "flow_exports",
+    "flow_imports",
+    "generation_renewable",
+    "generation_renewable_with_storage",
+    "price",
+    "renewable_proportion",
+    "renewable_with_storage_proportion",
+    "emissions",
+    "power",
+    "curtailment_negative",
+    "hour_sin",
+    "hour_cos",
+    "day_of_week_sin",
+    "day_of_week_cos",
+    "month_sin",
+    "month_cos",
+    "is_weekend",
+    "price_lag_1h",
+    "price_lag_24h",
+    "price_lag_168h",
+    "price_rolling_mean_24h",
+    "price_rolling_std_24h",
+    "demand_lag_1h",
+    "demand_lag_24h",
+    "demand_lag_168h",
+    "demand_rolling_mean_24h",
+    "demand_rolling_std_24h",
+    "generation_renewable_lag_1h",
+    "generation_renewable_lag_24h",
+    "generation_renewable_lag_168h",
+    "generation_renewable_rolling_mean_24h",
+    "generation_renewable_rolling_std_24h",
+    "curtailment_lag_1h",
+    "curtailment_lag_24h",
+    "curtailment_lag_168h",
+    "curtailment_rolling_mean_24h",
+    "curtailment_rolling_std_24h"
+  ],
+  "classes": [
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ],
+  "prediction_horizon_hours": 1,
+  "target_quantiles": [
+    0.75,
+    0.9,
+    0.97
+  ],
+  "target_thresholds": {
+    "demand_gross": {
+      "elevated_75th": 9258.553131499999,
+      "severe_90th": 10190.188576100001,
+      "extreme_97th": 11322.356350209993
+    },
+    "price": {
+      "elevated_75th": 120.44812499999999,
+      "severe_90th": 227.47574970000005,
+      "extreme_97th": 363.11920820999995
+    },
+    "flow_imports": {
+      "elevated_75th": 1003.6569365,
+      "severe_90th": 1263.1405719,
+      "extreme_97th": 1553.2644931399998
+    },
+    "curtailment": {
+      "elevated_75th": 51.999806250000006,
+      "severe_90th": 203.0308497000001,
+      "extreme_97th": 417.1260104599981
+    },
+    "flow_exports": {
+      "elevated_75th": 217.94881025,
+      "severe_90th": 414.91225360000044,
+      "extreme_97th": 603.7997547099999
+    },
+    "renewable_with_storage_proportion": {
+      "elevated_75th": 37.71,
+      "severe_90th": 52.38,
+      "extreme_97th": 64.61889999999991
+    }
+  },
+  "adequacy_weights": {
+    "demand_gross": 0.4,
+    "price": 0.35,
+    "flow_imports": 0.25
+  },
+  "congestion_weights": {
+    "curtailment": 0.6,
+    "flow_exports": 0.25,
+    "renewable_with_storage_proportion": 0.15
+  },
+  "score_bins": [
+    "-inf",
+    0.75,
+    1.5,
+    2.25,
+    "inf"
+  ],
+  "validation_results": {
+    "Random Forest": {
+      "accuracy": 0.7639204545454545,
+      "macro_f1": 0.7009727768193402,
+      "critical_recall": 0.72236727589208
+    },
+    "XGBoost": {
+      "accuracy": 0.7833333333333333,
+      "macro_f1": 0.7293978401814017,
+      "critical_recall": 0.7302001740644039
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.812689393939394,
+    "macro_f1": 0.7554186891227157,
+    "critical_recall": 0.8951515151515151
+  },
+  "confusion_matrix": [
+    [
+      4673,
+      592,
+      29,
+      5
+    ],
+    [
+      271,
+      1802,
+      281,
+      35
+    ],
+    [
+      9,
+      321,
+      630,
+      262
+    ],
+    [
+      1,
+      28,
+      144,
+      1477
+    ]
+  ]
+}
