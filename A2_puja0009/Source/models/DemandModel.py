@@ -18,7 +18,11 @@ from sklearn.gaussian_process.kernels import ConstantKernel, Matern, WhiteKernel
 
 
 # Resolve saved parameters and rules from A2, independently of the launch directory.
-from config import SAVED_MODELS_DIR, REPORTS_DIR, RULES_DIR
+A2_DIR = Path(__file__).resolve().parents[2]
+SAVED_MODELS_DIR = A2_DIR / "Misc" / "saved_models"
+REPORTS_DIR = A2_DIR / "Reports"
+RULES_DIR = Path(__file__).resolve().parents[1] / "prolog"
+
 DEFAULT_MODEL_PATH = str(SAVED_MODELS_DIR / "demand_gp.npz")
 DEFAULT_RULES_PATH = str(RULES_DIR / "uncertainty.pl")
 

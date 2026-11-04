@@ -141,16 +141,16 @@
       "continuing_spikes": 62,
       "continuing_recall": 1.0,
       "threshold": 0.28,
-      "accuracy": 0.9864632857897517,
-      "precision": 0.345679012345679,
+      "accuracy": 0.9867274167987322,
+      "precision": 0.3514644351464435,
       "recall": 0.6461538461538462,
-      "f1": 0.450402144772118,
-      "f2": 0.5504587155963303,
-      "pr_auc": 0.47512627371546157,
-      "false_alarms_per_week": 1.763866877971474,
+      "f1": 0.45528455284552843,
+      "f2": 0.5533596837944664,
+      "pr_auc": 0.47530482892182374,
+      "false_alarms_per_week": 1.7194928684627575,
       "confusion_matrix": {
-        "tn": 14855,
-        "fp": 159,
+        "tn": 14859,
+        "fp": 155,
         "fn": 46,
         "tp": 84
       }
@@ -207,16 +207,16 @@
     "hybrid_any_alert_recall_onset": 0.6764705882352942,
     "spikes_with_no_alert": 22,
     "spikes_caught_only_by_near_threshold_rule": 22,
-    "ml_false_alarms": 159,
-    "monitor_only_alerts": 1111,
-    "grid_stress_warnings_issued": 154,
+    "ml_false_alarms": 155,
+    "monitor_only_alerts": 1115,
+    "grid_stress_warnings_issued": 151,
     "hours_with_suspect_data": 93,
     "constraint_violations": 0,
     "primary_action_counts": {
       "maintain_operations": 13790,
-      "monitor_conditions": 1111,
-      "issue_price_warning": 154,
-      "defer_non_essential_loads": 89
+      "monitor_conditions": 1115,
+      "issue_price_warning": 151,
+      "defer_non_essential_loads": 88
     }
   }
 }

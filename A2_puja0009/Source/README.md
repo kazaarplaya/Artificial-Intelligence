@@ -25,7 +25,7 @@ A2 contains only `Source`, `Reports`, and `Misc` at its top level.
 - `Misc/price`: price evaluation reports and charts.
 - `Reports`: submission documents, including the self-assessment PDF. Other subsystems currently print their results, and demand also displays a chart.
 
-`config.py` resolves default locations relative to this source directory, independently
+Default locations are resolved relative to the source files, independently
 of the working directory. Explicit `--input` paths are relative to your current directory.
 
 ## Setup

@@ -11,12 +11,13 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
-from config import TRANSFORMED_DATA_PATH
 
 from models.DemandModel import DemandModel
 from models.NetworkStressModel import NetworkStressModel
 from models.PriceModel import PriceModel
 from models.RenewableModel import RenewableModel
+
+TRANSFORMED_DATA_PATH = Path(__file__).resolve().parents[1] / "Misc" / "data" / "processed" / "electricity_transformed.parquet"
 
 
 def main():

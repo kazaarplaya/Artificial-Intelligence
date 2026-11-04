@@ -12,10 +12,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import sklearn
-from config import SAVED_MODELS_DIR, REPORTS_DIR
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from threadpoolctl import threadpool_limits
+
+A2_DIR = Path(__file__).resolve().parents[2]
+SAVED_MODELS_DIR = A2_DIR / "Misc" / "saved_models"
+REPORTS_DIR = A2_DIR / "Reports"
 
 
 class RenewableModel:

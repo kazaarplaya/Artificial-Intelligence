@@ -1,3 +1,9 @@
+# Student Name: Matilda Alford
+# Student FAN: ALFO0043
+# File: RenewableRules.py
+# Date: 04-11-2026
+# Description: Assess hourly renewable coverage using miniKanren.
+
 """Matilda Alford (ALFO0043): hourly renewable coverage rules using miniKanren.
 
 Thresholds are project scenarios, not reliability standards. The ratio compares

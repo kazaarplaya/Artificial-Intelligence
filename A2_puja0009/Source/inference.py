@@ -10,10 +10,10 @@ Date: 02-11-2026
 
 import os
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
-from config import ENV_PATH
 
 from A1_data_pipeline.DataLoader import DataLoader
 from models.DemandModel import DemandModel
@@ -22,6 +22,8 @@ from models.NetworkStressModel import NetworkStressModel
 from models.RenewableModel import RenewableModel
 from prolog.RenewableRules import RenewableRules
 from prolog.SystemAssessment import SystemAssessment
+
+ENV_PATH = Path(__file__).resolve().with_name(".env")
 
 # Shared formatting keeps every subsystem and the final assessment consistent.
 def label(value):

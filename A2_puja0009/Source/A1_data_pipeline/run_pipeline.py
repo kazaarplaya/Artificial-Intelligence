@@ -12,17 +12,23 @@ import json
 
 import pandas as pd
 
-# Support both direct execution and importing as a package from Source.
 import sys
 from pathlib import Path
+
+SOURCE_DIR = Path(__file__).resolve().parents[1]
 if __package__ in (None, ""):
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(0, str(SOURCE_DIR))
+
 from A1_data_pipeline.DataLoader import DataLoader
-from config import RAW_DATA_DIR, PROCESSED_DATA_DIR, DATA_PIPELINE_REPORT_DIR, ENV_PATH
 from dotenv import load_dotenv
 from datetime import datetime
 
 # Resolve paths from this file, independently of the launch directory.
+MISC_DIR = SOURCE_DIR.parent / "Misc"
+RAW_DATA_DIR = MISC_DIR / "data" / "raw"
+PROCESSED_DATA_DIR = MISC_DIR / "data" / "processed"
+DATA_PIPELINE_REPORT_DIR = MISC_DIR / "data_pipeline"
+ENV_PATH = SOURCE_DIR / ".env"
 load_dotenv(ENV_PATH)
 
 # Pipeline constants

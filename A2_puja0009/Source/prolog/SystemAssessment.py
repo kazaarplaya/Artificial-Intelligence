@@ -5,9 +5,12 @@ File: SystemAssessment.py
 Date: 03-11-2026
 Description: Validate and combine subsystem evidence through Prolog rules.
 """
-from config import RULES_DIR
+
+from pathlib import Path
 
 import pandas as pd
+
+RULES_DIR = Path(__file__).resolve().parent
 
 
 class SystemAssessment:

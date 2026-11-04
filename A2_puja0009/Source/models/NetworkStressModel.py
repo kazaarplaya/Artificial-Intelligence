@@ -61,7 +61,11 @@ THRESHOLD_FEATURES = list(
 )
 
 
-from config import SAVED_MODELS_DIR, REPORTS_DIR, RULES_DIR
+A2_DIR = Path(__file__).resolve().parents[2]
+SAVED_MODELS_DIR = A2_DIR / "Misc" / "saved_models"
+REPORTS_DIR = A2_DIR / "Reports"
+RULES_DIR = Path(__file__).resolve().parents[1] / "prolog"
+
 DEFAULT_MODEL_DIR = SAVED_MODELS_DIR
 DEFAULT_RULES_PATH = RULES_DIR / "stress_rules.pl"
 
