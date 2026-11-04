@@ -13,6 +13,7 @@ from datetime import datetime
 
 import pandas as pd
 from dotenv import load_dotenv
+from config import ENV_PATH
 
 from A1_data_pipeline.DataLoader import DataLoader
 from models.DemandModel import DemandModel
@@ -146,7 +147,7 @@ def main():
 
     Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043
     """
-    load_dotenv()
+    load_dotenv(ENV_PATH)
     api_key = os.getenv("OPENELECTRICITY_API_KEY")
     if not api_key:
         raise ValueError("Set OPENELECTRICITY_API_KEY in the environment or .env.")

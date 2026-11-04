@@ -13,85 +13,74 @@ This is the working repository for the A2 submission for Group P, COMP3742 Artif
 
 Each Python function and method contains an author credit with the name and FAN of the credited group member, including files with a single author. Prolog predicates have equivalent author comments. Shared pipeline functions credit all four group members; combined Prolog assessment predicates credit Group P, with integration by Hans Pujalte.
 
-## Setup and Installation
+## Layout
 
-Ensure python is installed on your system, version 3.11 or later. but <3.14
-Create and activate your virtual environment.
+A2 contains only `Source`, `Reports`, and `Misc` at its top level.
 
-```bash
-python -m venv .venv          # create
-source .venv/bin/activate     # activate (Linux/macOS)
-.venv\Scripts\activate        # activate (Windows)
-```
+- `Source`: Python code, Prolog rules, requirements and the local `.env` file.
+- `Misc/data/raw` and `Misc/data/processed`: downloaded and prepared datasets.
+- `Misc/saved_models`: all fitted models and network-stress metadata.
+- `Misc/notebooks`: network-stress training and historical inference notebooks.
+- `Reports/data_pipeline`: cleaning, transformation and exploratory modelling reports.
+- `Reports/price`: price evaluation reports and charts.
+- `Reports/demand`, `network_stress`, `renewable`, and `inference`: reserved output folders; these subsystems currently print their results, and demand also displays a chart.
 
-Install the dependencies using pip:
+`config.py` resolves default locations relative to this source directory, independently
+of the working directory. Explicit `--input` paths are relative to your current directory.
 
-```bash
-pip install -r requirements.txt
-```
+## Setup
 
-> [!IMPORTANT]
-> If you are marking the env file will be already installed you can skip this step.
-
-Then head to [Open Electricity Platform](https://platform.openelectricity.org.au/) and create an educational account by signing up with your flinders email.
-You must do this to ensure you have access to historical data range.
-Create your api key and then copy it and run the following command :
+Use Python 3.11–3.13 and an environment with the packages from `requirements.txt`.
+Install SWI-Prolog separately so PySwip can load its shared library.
+From the repository root, install Python requirements into your active environment:
 
 ```bash
-echo "OPENELECTRICITY_API_KEY=<PASTE YOUR API KEY HERE>" > A2/.env
+python -m pip install -r A2_puja0009/Source/requirements.txt
 ```
 
-Make sure .env is UTF-8 or else python-dotenv will throw an error.
+Create `Source/.env` containing your OpenElectricity API key:
 
-## Runtime requirements
+```text
+OPENELECTRICITY_API_KEY=<your API key>
+```
 
-Install SWI-Prolog separately so PySwip can locate its shared library. XGBoost is
-included in `requirements.txt`. Use the existing project environment if these
-packages are already installed.
+This file is excluded from Git. An existing environment variable takes precedence.
+Historical data access requires an appropriate OpenElectricity account.
 
-## Training pipeline
+## Prepare data
 
-Generate A2's transformed dataset:
+From the repository root:
 
 ```bash
-python A1_data_pipeline/run_pipeline.py
+python A2_puja0009/Source/A1_data_pipeline/run_pipeline.py
 ```
 
-Train both implemented subsystems:
+This fetches the configured historical period, cleans and transforms the data,
+and runs A1's exploratory modelling. Data is saved under `Misc/data` and reports
+under `Reports/data_pipeline`. The date constants are in that script.
+
+## Machine-learning training
+
+Run training separately after preparing the data:
 
 ```bash
-python training_pipeline.py --input A2/data/processed/electricity_transformed.parquet
+python A2_puja0009/Source/training_pipeline.py
 ```
 
-The `--input` argument is required and specifies the transformed dataset to load.
-Paths are relative to the directory where the command is run; from A2, use
-`--input data/processed/electricity_transformed.parquet`. The script loads the dataset
-once and trains demand and network stress in sequence. There is no model-selection
-argument. Generate the dataset first, or provide an existing transformed parquet.
-
-The demand model's existing training and plotting behaviour is preserved. Importing
-either entry-point module does not start training or fetch data.
-
-## Inference
-
-Run both subsystems against recent transformed observations fetched once from the API:
+The default input is `Misc/data/processed/electricity_transformed.parquet`.
+To use another dataset:
 
 ```bash
-python inference.py
+python A2_puja0009/Source/training_pipeline.py --input /absolute/path/to/dataset.parquet
 ```
 
-The script always runs demand and network-stress inference in sequence on the same
-history. It does not accept model-selection or historical-data arguments. For a
-historical network-stress demonstration, use `notebooks/inference.ipynb`.
+Training loads the shared dataset once and trains demand, price spike, network stress
+and renewable generation in sequence. Close the demand plot window to continue if
+it blocks. The dataset must cover the models' configured training and evaluation
+periods: price uses 2024 validation and 2025-onwards testing; demand starts testing
+on 24 September 2025 with a preceding 30-day training window.
 
-Live inference uses `OPENELECTRICITY_API_KEY` from the environment or `.env`;
-an existing environment value takes precedence. Model and Prolog paths are resolved
-relative to A2, independently of the launch directory. Train both models before
-running inference.
-
-### Saved model paths
-
-All four training pipelines save their fitted models in `A2/saved_models/`:
+Models are saved under `Misc/saved_models`:
 
 - `demand_gp.npz`
 - `price_spike_model.joblib`
@@ -99,30 +88,37 @@ All four training pipelines save their fitted models in `A2/saved_models/`:
 - `network_stress_model_metadata.json`
 - `renewable_gb.npz`
 
-Training creates this directory automatically. Inference and the network-stress
-notebooks load from the same directory, independently of the launch directory.
-The directory is ignored by Git. Explicit model-path overrides still work.
-Price evaluation reports remain under `A2/reports/price/`, and rule files remain
-under `A2/prolog/`. Existing artifacts copied from older locations can be used
-without retraining; original copies are retained as backups.
+The pre-existing network-stress artifact and metadata have been moved here.
+Train all four models before running the complete inference pipeline. Existing
+artifacts may need retraining if their dependency versions differ from your environment.
 
+## Inference
 
-### Combined inference assessment
+Run inference separately:
 
-Inference now prints Demand Forecast, Network Stress, Price Spike, Renewable Coverage,
-and Combined System Assessment using the same forecast-time, assessment, explanation,
-and recommendation headings. Each model retains its standalone output by default;
-the shared pipeline requests structured results without printing twice.
+```bash
+python A2_puja0009/Source/inference.py
+```
 
-`prolog/system_assessment.pl` coordinates the subsystem evidence through Prolog.
+This fetches recent history once and runs all four subsystems, renewable coverage,
+and the combined system assessment. It prints results to the terminal.
+It does not trigger training or historical data preparation.
+
+From inside `Source`, the equivalent commands are
+`python A1_data_pipeline/run_pipeline.py`, `python training_pipeline.py`, and
+`python inference.py`. There is no combined entry point.
+
+The notebooks in `Misc/notebooks` use the same dataset and model locations.
+They support launching from the repository root, A2, or within its subdirectories.
+
+## Combined assessment
+
+`prolog/system_assessment.pl` coordinates subsystem evidence.
 `prolog/SystemAssessment.py` validates aligned one-hour forecast times and records
-subsystem failures. Missing results, mismatched times or unavailable reasoning
-prevent an all-clear. Critical/high network stress and uncertain or invalid evidence
-prioritise operator review ahead of economic actions. A renewable-share shortfall
-remains a target issue, not proof of insufficient total supply. The combined layer
-is advisory: it does not execute actions, send notifications, or certify grid safety.
+subsystem failures. Missing or invalid evidence prevents an all-clear. Renewable
+coverage uses miniKanren and requires matching demand and renewable forecasts.
 
-Demand uncertainty, stress warnings, price actions and renewable coverage retain
-their individual explanations. These combined rules are project policies requiring
-domain validation, not calibrated probabilities of system failure. Renewable
-reasoning continues to use the existing miniKanren subsystem.
+The combined layer is advisory: it does not execute actions or certify grid safety.
+A renewable-share shortfall is a target issue, not proof of insufficient total supply.
+Subsystem failures are displayed; inspect the assessment and errors rather than
+assuming a successful process exit means every subsystem succeeded.

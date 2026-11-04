@@ -27,9 +27,9 @@ from sklearn.preprocessing import StandardScaler
 
 
 # Resolve saved artifacts and rules from A2, independently of the launch directory.
-A2_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_MODEL_PATH = str(A2_DIR / "saved_models" / "price_spike_model.joblib")
-DEFAULT_REPORT_DIR = str(A2_DIR / "reports" / "price")
+from config import SAVED_MODELS_DIR, REPORTS_DIR, RULES_DIR
+DEFAULT_MODEL_PATH = str(SAVED_MODELS_DIR / "price_spike_model.joblib")
+DEFAULT_REPORT_DIR = str(REPORTS_DIR / "price")
 
 
 class PriceModel:
@@ -66,7 +66,7 @@ class PriceModel:
     MAX_DATA_AGE_HOURS = 1
     PRICE_FLOOR, PRICE_CAP = -1000.0, 20000.0
 
-    RULES = str(A2_DIR / "prolog" / "price_spike.pl")
+    RULES = str(RULES_DIR / "price_spike.pl")
     ALERT_ACTIONS = {"defer_non_essential_loads", "issue_price_warning",
                      "use_site_battery", "monitor_conditions"}
 

@@ -61,9 +61,9 @@ THRESHOLD_FEATURES = list(
 )
 
 
-A2_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_MODEL_DIR = A2_DIR / "saved_models"
-DEFAULT_RULES_PATH = A2_DIR / "prolog" / "stress_rules.pl"
+from config import SAVED_MODELS_DIR, REPORTS_DIR, RULES_DIR
+DEFAULT_MODEL_DIR = SAVED_MODELS_DIR
+DEFAULT_RULES_PATH = RULES_DIR / "stress_rules.pl"
 
 
 def normalise_data(data: pd.DataFrame) -> pd.DataFrame:

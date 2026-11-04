@@ -4,14 +4,14 @@ Student FANs: WUTT0019, PUJA0009, PANT0108, ALFO0043
 Date: 02-11-2026
 File: training_pipeline.py
 Description: Train all implemented A2 models on the transformed electricity data.
-Usage: python training_pipeline --input data/processed/electricity_transformed.parquet
+Usage: python training_pipeline.py [--input PATH]
 """
 
 import argparse
-import sys
 from pathlib import Path
 
 import pandas as pd
+from config import TRANSFORMED_DATA_PATH
 
 from models.DemandModel import DemandModel
 from models.NetworkStressModel import NetworkStressModel
@@ -27,20 +27,14 @@ def main():
     """
     # CLI arg parser for inputting training set path.
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, help="path to training dataset")
+    parser.add_argument("--input", type=Path, default=TRANSFORMED_DATA_PATH,
+                        help="transformed parquet (default: Misc/data/processed/electricity_transformed.parquet)")
     args = parser.parse_args()
+    TRAINING_PATH = args.input
+    if not TRAINING_PATH.is_file():
+        parser.error(f"Dataset not found: {TRAINING_PATH}. Run A1_data_pipeline/run_pipeline.py first, or supply --input.")
 
-    # Require a dataset path before running either training pipeline.
-    if args.input is not None:
-        TRAINING_PATH = args.input
-    else:
-        sys.exit(
-            "No dataset argument found. Please provide "
-            "--input A2/data/processed/electricity_transformed.parquet "
-            "from the repository root, as per the README.md."
-        )
-
-    # Load and sort the dataset once for both models.
+    # Load and sort the dataset once for all four models.
     df = pd.read_parquet(TRAINING_PATH).set_index("timestamp").sort_index()
 
     print("\n========== Machine Learning Training ==========")

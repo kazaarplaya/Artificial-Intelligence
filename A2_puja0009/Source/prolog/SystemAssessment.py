@@ -5,13 +5,13 @@ File: SystemAssessment.py
 Date: 03-11-2026
 Description: Validate and combine subsystem evidence through Prolog rules.
 """
-from pathlib import Path
+from config import RULES_DIR
 
 import pandas as pd
 
 
 class SystemAssessment:
-    RULES = Path(__file__).with_name("system_assessment.pl")
+    RULES = RULES_DIR / "system_assessment.pl"
 
     def assess(self, results: dict, errors: dict | None = None) -> dict:
         """

@@ -12,13 +12,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import sklearn
+from config import SAVED_MODELS_DIR
 from sklearn.ensemble import HistGradientBoostingRegressor
 from threadpoolctl import threadpool_limits
 
 
 class RenewableModel:
     HORIZON_HOURS = 1
-    DEFAULT_PATH = Path(__file__).resolve().parents[1] / "saved_models" / "renewable_gb.npz"
+    DEFAULT_PATH = SAVED_MODELS_DIR / "renewable_gb.npz"
     FEATURES = [
         f"{column}{suffix}"
         for column in ("generation_renewable", "demand")
