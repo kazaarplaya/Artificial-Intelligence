@@ -55,7 +55,8 @@ def main():
     network_stress_model = NetworkStressModel()
     network_stress_model.train_eval(training_set=df)
 
-    RenewableModel().train(training_set=df)
+    # Evaluate renewable forecasts before fitting the final deployment model.
+    RenewableModel().train_eval(training_set=df)
     print("\n========== Training Complete ==========\nAll four training pipelines finished successfully.")
 
 if __name__ == "__main__":

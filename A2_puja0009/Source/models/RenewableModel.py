@@ -12,8 +12,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import sklearn
-from config import SAVED_MODELS_DIR
+from config import SAVED_MODELS_DIR, REPORTS_DIR
 from sklearn.ensemble import HistGradientBoostingRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from threadpoolctl import threadpool_limits
 
 
@@ -88,37 +89,120 @@ class RenewableModel:
         features["target_is_weekend"] = (local.dayofweek >= 5).astype(int)
         return features[cls.FEATURES].replace([np.inf, -np.inf], np.nan)
 
-    def train(self, training_set: pd.DataFrame, model_path=None) -> None:
-        """Fit CV-selected settings on supplied history and save the fitted ensemble.
+    @staticmethod
+    def _new_model():
+        """Keep evaluation and deployment on the same notebook-selected settings."""
+        return HistGradientBoostingRegressor(
+            max_iter=300, learning_rate=0.05, max_leaf_nodes=31,
+            min_samples_leaf=20, l2_regularization=1.0,
+            early_stopping=False, random_state=42,
+        )
 
-        Pass cleaned data, without curtailment trimming. Evaluation belongs in
-        renewable_investigation.ipynb; this fits the final deployment artifact.
-        Author: Matilda Alford - ALFO0043
-        """
-        print("\n========== Renewable Generation | Training ==========")
-        print("Model: Histogram Gradient Boosting | Horizon: 1 hour")
-        print("Configuration: Previously selected in the renewable investigation notebook")
+    def _examples(self, training_set):
         history = self._history(training_set)
         examples = self.build_features(history)
         examples["target"] = history["generation_renewable"].shift(-self.HORIZON_HOURS)
         examples = examples.replace([np.inf, -np.inf], np.nan).dropna()
         if examples.empty:
             raise ValueError("No usable training examples; provide at least 170 hourly rows with valid measurements.")
-        self.model = HistGradientBoostingRegressor(
-            max_iter=300, learning_rate=0.05, max_leaf_nodes=31,
-            min_samples_leaf=20, l2_regularization=1.0,
-            early_stopping=False, random_state=42,
-        )
+        return history, examples
+
+    def _fit_deployment(self, examples, model_path):
+        self.model = self._new_model()
         with threadpool_limits(limits=2):
             self.model.fit(examples[self.FEATURES], examples["target"])
-        self.trained_through = (examples.index[-1] + pd.Timedelta(hours=1)).isoformat()
+        self.trained_through = (examples.index[-1] + pd.Timedelta(hours=self.HORIZON_HOURS)).isoformat()
         self.save(model_path)
         print(f"Training examples: {len(examples):,}")
         print(f"Training targets through: {self.trained_through}")
-        print("\nEvaluation: Not performed in this training method.")
-        print("See renewable_investigation.ipynb for the recorded model comparison.")
-        print(f"\nSaved model: {Path(model_path or self.DEFAULT_PATH).resolve()}")
+        print(f"Saved model: {Path(model_path or self.DEFAULT_PATH).resolve()}")
+
+    def train(self, training_set: pd.DataFrame, model_path=None) -> None:
+        """Fit the notebook-selected deployment model without running evaluation."""
+        print("\n========== Renewable Generation | Training ==========")
+        print("Model: Histogram Gradient Boosting | Horizon: 1 hour")
+        _, examples = self._examples(training_set)
+        self._fit_deployment(examples, model_path)
+        print("Evaluation: Not performed; use train_eval() for held-out metrics.")
         print("Status: Deployment model training complete")
+
+    def train_eval(self, training_set: pd.DataFrame, model_path=None,
+                   report_dir=None, test_start="2025-09-24") -> dict:
+        """Evaluate fixed notebook-selected settings, then refit for deployment.
+
+        Split by forecast target time, using the notebook's test boundary by
+        default. This is a historical replay, not a new independent test set.
+        No model or hyperparameter selection is performed on the test period.
+        """
+        print("\n========== Renewable Generation | Training ==========")
+        print("Model: Histogram Gradient Boosting | Horizon: 1 hour")
+        print("Configuration: Previously selected in the renewable investigation notebook")
+        history, examples = self._examples(training_set)
+        boundary = pd.Timestamp(test_start)
+        if pd.isna(boundary):
+            raise ValueError("test_start must be a valid timestamp.")
+        boundary = (boundary.tz_localize(history.index.tz) if boundary.tzinfo is None
+                    else boundary.tz_convert(history.index.tz))
+        target_times = examples.index + pd.Timedelta(hours=self.HORIZON_HOURS)
+        train = examples.loc[target_times < boundary]
+        test = examples.loc[target_times >= boundary]
+        if len(train) < 2 or len(test) < 2:
+            raise ValueError("Evaluation requires at least two usable examples before and after test_start.")
+
+        partitions = {}
+        print("\nDataset partitions (target timestamps):")
+        for name, part in (("train", train), ("test", test)):
+            times = part.index + pd.Timedelta(hours=self.HORIZON_HOURS)
+            partitions[name] = {"rows": len(part), "first_target": times[0].isoformat(),
+                                "last_target": times[-1].isoformat()}
+            print(f"{name:<6} {len(part):>7,} hours | {times[0]} to {times[-1]}")
+
+        # Freeze the evaluation model before forecasting the held-out period.
+        # Each one-hour forecast can use observations available at that hour.
+        evaluation_model = self._new_model()
+        with threadpool_limits(limits=2):
+            evaluation_model.fit(train[self.FEATURES], train["target"])
+            predicted = evaluation_model.predict(test[self.FEATURES])
+        predictions = {
+            "Gradient Boosting": predicted,
+            "Persistence": test["generation_renewable"].to_numpy(),
+            # For target t+1, the same hour yesterday is observation t-23.
+            "Daily seasonal": history["generation_renewable"].shift(23).loc[test.index].to_numpy(),
+        }
+        scores = {}
+        for name, values in predictions.items():
+            scores[name] = {
+                "MAE (MW)": float(mean_absolute_error(test["target"], values)),
+                "RMSE (MW)": float(np.sqrt(mean_squared_error(test["target"], values))),
+                "R²": float(r2_score(test["target"], values)),
+                "Bias (MW)": float(np.mean(values - test["target"].to_numpy())),
+            }
+        table = pd.DataFrame(scores).T
+        baseline_mae = scores["Persistence"]["MAE (MW)"]
+        improvement = (100 * (1 - scores["Gradient Boosting"]["MAE (MW)"] / baseline_mae)
+                       if baseline_mae > 0 else None)
+        print("\nTest performance:")
+        print(table.to_string(float_format=lambda value: f"{value:.3f}"))
+        print("Lower MAE/RMSE is better; higher R² is better. Negative bias means underprediction.")
+        print(f"MAE improvement over persistence: {improvement:.1f}%" if improvement is not None
+              else "MAE improvement over persistence: undefined (baseline MAE is zero).")
+
+        report_dir = Path(report_dir) if report_dir is not None else REPORTS_DIR / "renewable"
+        report_dir.mkdir(parents=True, exist_ok=True)
+        metrics = {"model": "Histogram Gradient Boosting", "parameters": evaluation_model.get_params(),
+                   "horizon_hours": self.HORIZON_HOURS, "test_start": boundary.isoformat(),
+                   "partitions": partitions, "test": scores,
+                   "mae_improvement_vs_persistence_percent": improvement,
+                   "selection": "Fixed settings previously selected in the notebook"}
+        (report_dir / "metrics.json").write_text(json.dumps(metrics, indent=2, allow_nan=False) + "\n")
+        table.to_csv(report_dir / "model_comparison_test.csv")
+        print(f"Saved reports: {report_dir.resolve()}")
+
+        # Only after scoring, include all supplied observations in deployment fit.
+        print("\nDeployment refit on all usable examples:")
+        self._fit_deployment(examples, model_path)
+        print("Status: Training and evaluation complete")
+        return metrics
 
     def save(self, model_path=None) -> None:
         """Store the fitted tree state as bytes in NPZ, plus readable metadata.
