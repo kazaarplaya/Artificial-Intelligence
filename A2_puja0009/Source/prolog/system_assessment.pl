@@ -8,6 +8,7 @@ Description: Coordinate subsystem forecasts into an advisory system assessment.
 :- module(system_assessment, [assess/9]).
 
 % Priority is explicit: incomplete evidence must never imply normal conditions.
+% Author: Group P (integration by Hans Pujalte - PUJA0009)
 priority(incomplete, _, _, _, _, manual_review_required) :- !.
 priority(_, critical, _, _, _, urgent_operator_review) :- !.
 priority(_, high, _, _, _, operator_review_required) :- !.
@@ -19,6 +20,7 @@ priority(_, _, _, _, high_price, monitor_and_review) :- !.
 priority(_, _, _, _, _, routine_monitoring).
 
 % These actions coordinate advisory outputs, not physical control commands.
+% Author: Group P (integration by Hans Pujalte - PUJA0009)
 reason(incomplete, _, _, _, _, _, incomplete_evidence,
        'A subsystem failed, returned invalid evidence, or forecasts refer to different hours; resolve this before relying on the combined assessment.').
 reason(_, critical, _, _, _, _, critical_network_stress,
@@ -41,9 +43,11 @@ reason(_, _, _, _, _, sufficient, renewable_target_met,
        'The renewable-share target is met; total supply and reserve adequacy still require separate assessment.').
 
 % Stateless arguments avoid interference between successive predictions or other KBs.
+% Author: Group P (integration by Hans Pujalte - PUJA0009)
 assess(Completeness, Network, Uncertainty, Quality, Price, Renewable, Priority, Rules, Texts) :-
     priority(Completeness, Network, Uncertainty, Quality, Price, Priority),
     findall(Id-Text, reason(Completeness, Network, Uncertainty, Quality, Price, Renewable, Id, Text), Pairs),
     pairs(Pairs, Rules, Texts).
+% Author: Group P (integration by Hans Pujalte - PUJA0009)
 pairs([], [], []).
 pairs([Id-Text|Rest], [Id|Ids], [Text|Texts]) :- pairs(Rest, Ids, Texts).

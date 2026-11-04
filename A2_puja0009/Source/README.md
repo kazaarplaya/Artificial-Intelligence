@@ -11,8 +11,7 @@ This is the working repository for the A2 submission for Group P, COMP3742 Artif
 | Shivansh Pant  | PANT0108 |
 | Matilda Alford | ALFO0043 |
 
-Each function contains an author in the comment stub which will contain the name and FAN of the group member who wrote it.
-If a file has only 1 author then functions/methods will not contain author notes
+Each Python function and method contains an author credit with the name and FAN of the credited group member, including files with a single author. Prolog predicates have equivalent author comments. Shared pipeline functions credit all four group members; combined Prolog assessment predicates credit Group P, with integration by Hans Pujalte.
 
 ## Setup and Installation
 

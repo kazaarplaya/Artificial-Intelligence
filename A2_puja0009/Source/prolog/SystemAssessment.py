@@ -14,7 +14,11 @@ class SystemAssessment:
     RULES = Path(__file__).with_name("system_assessment.pl")
 
     def assess(self, results: dict, errors: dict | None = None) -> dict:
-        """Require aligned one-hour forecasts; missing evidence triggers review."""
+        """
+        Require aligned one-hour forecasts; missing evidence triggers review.
+
+        Author: Hans Pujalte - PUJA0009
+        """
         issues = [f"{name}: {message}" for name, message in (errors or {}).items()]
         times = []
         for name, field in [("demand", "forecast_time"), ("network", "target_timestamp"),
@@ -39,6 +43,7 @@ class SystemAssessment:
 
         # Only recognised atoms reach the Prolog query; no free text is interpolated.
         def category(value, allowed, label):
+            """Author: Hans Pujalte - PUJA0009"""
             if value in allowed:
                 return value
             issues.append(f"{label}: missing or unrecognised category")

@@ -14,9 +14,11 @@ Usage: swipl -g run_tests -t halt prolog/test_price_spike.pl
 
 %! case(+Prediction, +Probability, +GridDemand, +Battery, +Quality, -Result) is det.
 %  Evaluates one case with a 0.25 decision threshold and no quality issues.
+% Author: Shivansh Pant - PANT0108
 case(Prediction, Probability, Demand, Battery, Quality, Result) :-
     case(Prediction, Probability, Demand, Battery, Quality, [], Result).
 
+% Author: Shivansh Pant - PANT0108
 case(Prediction, Probability, Demand, Battery, Quality, Issues0, R) :-
     assess(Prediction, Probability, 0.25, Demand, Battery, Quality, Issues0,
            Primary, Actions, Rules, _, Deferred, Violations, Confidence, Q, _),
@@ -25,36 +27,43 @@ case(Prediction, Probability, Demand, Battery, Quality, Issues0, R) :-
 
 :- begin_tests(recommendations).
 
+% Author: Shivansh Pant - PANT0108
 test(r1_defers_only_deferrable_loads) :-
     case(high_price, 0.9, normal, unavailable, valid, R),
     R.primary == defer_non_essential_loads,
     R.deferred \== [],
     forall(member(L, R.deferred), price_spike:site_load(L, deferrable)).
 
+% Author: Shivansh Pant - PANT0108
 test(r1_and_r2_combine) :-
     case(high_price, 0.9, normal, available, valid, R),
     memberchk(defer_non_essential_loads, R.actions),
     memberchk(use_site_battery, R.actions).
 
+% Author: Shivansh Pant - PANT0108
 test(r2_needs_site_battery) :-
     case(high_price, 0.9, normal, unavailable, valid, R),
     \+ memberchk(use_site_battery, R.actions).
 
+% Author: Shivansh Pant - PANT0108
 test(r3_grid_stress_warns_and_still_defers) :-
     case(high_price, 0.9, critical, unavailable, valid, R),
     R.primary == issue_price_warning,
     memberchk(defer_non_essential_loads, R.actions),
     forall(price_spike:site_load(C, critical), \+ memberchk(C, R.deferred)).
 
+% Author: Shivansh Pant - PANT0108
 test(r4_normal_operations) :-
     case(normal_price, 0.05, normal, unavailable, valid, R),
     R.actions == [maintain_operations],
     R.confidence == high.
 
+% Author: Shivansh Pant - PANT0108
 test(r6_normal_price_critical_demand_is_covered) :-
     case(normal_price, 0.05, critical, unavailable, valid, R),
     R.primary == monitor_conditions.
 
+% Author: Shivansh Pant - PANT0108
 test(r7_near_threshold_monitors) :-
     case(normal_price, 0.2, normal, unavailable, valid, R),
     memberchk(monitor_conditions, R.actions).
@@ -63,28 +72,33 @@ test(r7_near_threshold_monitors) :-
 
 :- begin_tests(safety).
 
+% Author: Shivansh Pant - PANT0108
 test(r5_unavailable_prediction_requests_review) :-
     case(unavailable, 0.0, normal, unavailable, valid, R),
     R.primary == request_manual_review,
     R.actions == [request_manual_review, maintain_operations],
     R.rules == [r5_safety_default, r5_safety_default].
 
+% Author: Shivansh Pant - PANT0108
 test(r5_invalid_data_blocks_economic_rules) :-
     case(high_price, 0.99, normal, available, invalid, R),
     R.primary == request_manual_review,
     \+ memberchk(defer_non_essential_loads, R.actions).
 
+% Author: Shivansh Pant - PANT0108
 test(unknown_values_are_treated_as_invalid) :-
     case(spike, 3, normal, unavailable, valid, R),
     R.quality == invalid,
     R.primary == request_manual_review.
 
+% Author: Shivansh Pant - PANT0108
 test(suspect_data_review_is_advisory) :-
     case(high_price, 0.9, normal, unavailable, valid, ["was_imputed"], R),
     R.quality == suspect,
     R.primary == defer_non_essential_loads,
     memberchk(request_manual_review, R.actions).
 
+% Author: Shivansh Pant - PANT0108
 test(no_constraint_violations_in_any_valid_combination) :-
     forall(( member(P, [high_price, normal_price, unavailable]),
              member(D, [critical, normal]),

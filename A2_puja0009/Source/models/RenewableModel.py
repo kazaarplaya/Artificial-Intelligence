@@ -33,12 +33,17 @@ class RenewableModel:
     ]
 
     def __init__(self, model: HistGradientBoostingRegressor | None = None):
+        """Author: Matilda Alford - ALFO0043"""
         self.model = model
         self.trained_through = None
 
     @staticmethod
     def _history(data: pd.DataFrame) -> pd.DataFrame:
-        """Validate history before row shifts; never fill gaps with future values."""
+        """
+        Validate history before row shifts; never fill gaps with future values.
+
+        Author: Matilda Alford - ALFO0043
+        """
         history = data.copy()
         if "timestamp" in history.columns:
             history = history.set_index("timestamp")
@@ -56,7 +61,11 @@ class RenewableModel:
 
     @classmethod
     def build_features(cls, data: pd.DataFrame) -> pd.DataFrame:
-        """Use observations through t and known local calendar values for t + 1h."""
+        """
+        Use observations through t and known local calendar values for t + 1h.
+
+        Author: Matilda Alford - ALFO0043
+        """
         history = cls._history(data)
         features = pd.DataFrame(index=history.index)
         for column in ("generation_renewable", "demand"):
@@ -83,6 +92,7 @@ class RenewableModel:
 
         Pass cleaned data, without curtailment trimming. Evaluation belongs in
         renewable_investigation.ipynb; this fits the final deployment artifact.
+        Author: Matilda Alford - ALFO0043
         """
         print("\n========== Renewable Generation | Training ==========")
         print("Model: Histogram Gradient Boosting | Horizon: 1 hour")
@@ -114,6 +124,7 @@ class RenewableModel:
 
         Constructor hyperparameters alone cannot reconstruct learned trees.
         Like other pickle-based sklearn artifacts, load only trusted archives.
+        Author: Matilda Alford - ALFO0043
         """
         if not isinstance(self.model, HistGradientBoostingRegressor) or not hasattr(self.model, "n_iter_"):
             raise ValueError("Fit a HistGradientBoostingRegressor before saving.")
@@ -137,7 +148,11 @@ class RenewableModel:
                                 metadata=np.asarray(json.dumps(metadata)))
 
     def load(self, model_path=None):
-        """Load a trusted local NPZ archive without refitting the estimator."""
+        """
+        Load a trusted local NPZ archive without refitting the estimator.
+
+        Author: Matilda Alford - ALFO0043
+        """
         path = Path(model_path) if model_path is not None else self.DEFAULT_PATH
         with np.load(path, allow_pickle=False) as archive:
             metadata = json.loads(archive["metadata"].item())
@@ -155,7 +170,11 @@ class RenewableModel:
         return self
 
     def inference(self, instance: pd.DataFrame, model_path=None, verbose: bool = True) -> dict:
-        """Forecast one hour after the latest observation; return integration fields."""
+        """
+        Forecast one hour after the latest observation; return integration fields.
+
+        Author: Matilda Alford - ALFO0043
+        """
         if model_path is not None or self.model is None:
             self.load(model_path)
         history = self._history(instance)

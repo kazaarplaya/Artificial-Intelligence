@@ -20,7 +20,11 @@ from models.RenewableModel import RenewableModel
 
 
 def main():
-    """Load the shared dataset and train each implemented model."""
+    """
+    Load the shared dataset and train each implemented model.
+
+    Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043
+    """
     # CLI arg parser for inputting training set path.
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, help="path to training dataset")

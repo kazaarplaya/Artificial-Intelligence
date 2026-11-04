@@ -47,6 +47,7 @@ class DemandModel:
 
         Returns:
             Dataframe with lagged features and encoded hours.
+        Author: Oliver Wuttke - WUTT0019
         """
         df = df.copy()
         df["demand_lag_23h"] = df["demand"].shift(23)
@@ -67,6 +68,7 @@ class DemandModel:
 
         Returns:
             ConstantKernel for GP regression model.
+        Author: Oliver Wuttke - WUTT0019
         """
         return ConstantKernel() * Matern(length_scale=np.ones(n_features), nu=2.5) + WhiteKernel()
 
@@ -80,6 +82,7 @@ class DemandModel:
 
         Returns:
             Sklearn GP Regression object.
+        Author: Oliver Wuttke - WUTT0019
         """
         return GaussianProcessRegressor(
             kernel, normalize_y=True, optimizer="fmin_l_bfgs_b" if tune else None)
@@ -93,6 +96,7 @@ class DemandModel:
 
         Returns:
             The newly scaled values.
+        Author: Oliver Wuttke - WUTT0019
         """
         z = np.concatenate([p[0] for p in past])
         hz = np.concatenate([p[1] for p in past])
@@ -107,6 +111,7 @@ class DemandModel:
             training_set: hourly data with a DatetimeIndex and columns
                           demand, demand_lag_1h, is_weekend.
             model_path: where to save the final model (.npz).
+        Author: Oliver Wuttke - WUTT0019
         """
         print("\n========== Demand | Training ==========")
         print("Model: Gaussian Process Regression | Horizon: 1 hour")
@@ -168,6 +173,7 @@ class DemandModel:
         }, index=df.index[start:] + pd.Timedelta(hours=1))
 
         def metrics(p):
+            """Author: Oliver Wuttke - WUTT0019"""
             e = res.actual - p
             return {
                 "MAE": np.mean(np.abs(e)),
@@ -216,6 +222,7 @@ class DemandModel:
 
         Returns:
             Timestamped next-hour demand prediction and calibrated interval.
+        Author: Oliver Wuttke - WUTT0019
         """
         # Rebuild the GP from saved params
         d = np.load(model_path)
@@ -268,6 +275,7 @@ class DemandModel:
         Args:
             facts: forecast values and context from inference().
             rules: path to the Prolog rules file.
+        Author: Oliver Wuttke - WUTT0019
         """
         from pyswip import Prolog
 

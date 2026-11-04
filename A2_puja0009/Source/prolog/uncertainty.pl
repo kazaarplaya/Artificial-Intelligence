@@ -9,14 +9,17 @@ Description: Rules and facts for explaining prediction with uncertainty.
 :- dynamic forecast/2.
 
 % Band half-width as a fraction of the prediction
+% Author: Oliver Wuttke - WUTT0019
 rel_width(R) :- forecast(pred, P), forecast(band, B), R is B / P.
 
 % Uncertainty level
+% Author: Oliver Wuttke - WUTT0019
 level(low) :- rel_width(R), R < 0.03.
 level(medium) :- rel_width(R), R >= 0.03, R < 0.06.
 level(high) :- rel_width(R), R >= 0.06.
 
 % This hour historically had larger/smaller errors than the GP expected
+% Author: Oliver Wuttke - WUTT0019
 reason(hard_hour) :- forecast(hour_scale, S), S > 1.2.
 reason(easy_hour) :- forecast(hour_scale, S), S < 0.8.
 
@@ -34,6 +37,7 @@ reason(out_of_range) :- forecast(demand, D), forecast(train_max, Hi), D > Hi.
 reason(weekend) :- forecast(is_weekend, W), W > 0.5.
 
 % Text outputs
+% Author: Oliver Wuttke - WUTT0019
 text(hard_hour, 'this hour has historically had larger errors (daytime ramp / solar variability)').
 text(easy_hour, 'this hour has historically been easy to predict (overnight, stable load)').
 text(steep_ramp, 'demand is changing quickly right now, so the trend is harder to extrapolate').
@@ -42,6 +46,7 @@ text(out_of_range, 'current demand is outside the range seen in training, so the
 text(weekend, 'weekend hours are under-represented in the training window').
 
 % Top-level query
+% Author: Oliver Wuttke - WUTT0019
 explanation(Level, Texts) :-
     level(Level),
     findall(T, (reason(R), text(R, T)), Texts).

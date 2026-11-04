@@ -11,8 +11,13 @@ from unification import reify
 
 
 def _compare(left, right, predicate):
-    """A numeric miniKanren goal, evaluated after forecast facts bind its terms."""
+    """
+    A numeric miniKanren goal, evaluated after forecast facts bind its terms.
+
+    Author: Matilda Alford - ALFO0043
+    """
     def goal(state):
+        """Author: Matilda Alford - ALFO0043"""
         if predicate(reify(left, state), reify(right, state)):
             yield state
     return goal
@@ -22,12 +27,14 @@ class RenewableRules:
     DEFAULT_TARGET_SHARE = 0.50
 
     def __init__(self, target_share=DEFAULT_TARGET_SHARE):
+        """Author: Matilda Alford - ALFO0043"""
         self.target_share = self._number(target_share, "target_share")
         if not 0 < self.target_share <= 1:
             raise ValueError("target_share must be greater than zero and at most one.")
 
     @staticmethod
     def _number(value, name):
+        """Author: Matilda Alford - ALFO0043"""
         try:
             number = float(value)
         except (TypeError, ValueError):
@@ -41,6 +48,7 @@ class RenewableRules:
 
         Optional demand bounds give sensitivity to demand uncertainty only.
         They do not form a joint prediction interval for renewable coverage.
+        Author: Matilda Alford - ALFO0043
         """
         times = []
         for name, forecast in (("renewable", renewable), ("demand", demand)):
@@ -141,6 +149,7 @@ class RenewableRules:
 
     @staticmethod
     def print_assessment(result):
+        """Author: Matilda Alford - ALFO0043"""
         print(f"Renewable sufficiency ({result['forecast_time']}): {result['status'].upper()}")
         print(result["explanation"])
         if result["demand_sensitivity"]:

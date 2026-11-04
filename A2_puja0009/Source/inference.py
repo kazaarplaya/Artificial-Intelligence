@@ -24,11 +24,16 @@ from prolog.SystemAssessment import SystemAssessment
 
 # Shared formatting keeps every subsystem and the final assessment consistent.
 def label(value):
+    """Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043"""
     return str(value).replace("_", " ").capitalize()
 
 
 def section(title, forecast_time, prediction, details=(), explanations=(), recommendations=()):
-    """Use the same headings and time representation for every subsystem."""
+    """
+    Use the same headings and time representation for every subsystem.
+
+    Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043
+    """
     print(f"\n========== {title} ==========")
     try:
         forecast_time = pd.Timestamp(forecast_time).strftime("%Y-%m-%d %H:%M %z")
@@ -47,7 +52,11 @@ def section(title, forecast_time, prediction, details=(), explanations=(), recom
 
 
 def print_assessment(results, errors, combined):
-    """Display subsystem evidence first, followed by the coordinated decision."""
+    """
+    Display subsystem evidence first, followed by the coordinated decision.
+
+    Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043
+    """
     for key, title in [("demand", "Demand Forecast"), ("network", "Network Stress"),
                        ("price", "Price Spike"), ("renewable", "Renewable Coverage")]:
         r = results.get(key)
@@ -96,7 +105,11 @@ def print_assessment(results, errors, combined):
 
 
 def run_inference(history):
-    """Run independent subsystems, retain failures, and coordinate their evidence."""
+    """
+    Run independent subsystems, retain failures, and coordinate their evidence.
+
+    Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043
+    """
     results, errors = {}, {}
     # Keep one failed subsystem from hiding other results. Failures prevent an all-clear.
     jobs = {
@@ -128,7 +141,11 @@ def run_inference(history):
 
 
 def main():
-    """Fetch shared observations and display the complete hybrid assessment."""
+    """
+    Fetch shared observations and display the complete hybrid assessment.
+
+    Author: Oliver Wuttke - WUTT0019; Hans Pujalte - PUJA0009; Shivansh Pant - PANT0108; Matilda Alford - ALFO0043
+    """
     load_dotenv()
     api_key = os.getenv("OPENELECTRICITY_API_KEY")
     if not api_key:

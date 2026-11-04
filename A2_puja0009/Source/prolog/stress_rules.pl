@@ -14,6 +14,7 @@
 :- dynamic curtailment/2.
 
 % Identify potential contributors to network stress
+% Author: Hans Pujalte - PUJA0009
 stress_driver(T, adequacy) :-
     import_share(T, Share),
     Share >= 0.15.
@@ -23,6 +24,7 @@ stress_driver(T, congestion) :-
     Curtailment >= 250.
 
 % Recommendations based on predicted risk
+% Author: Hans Pujalte - PUJA0009
 recommendation(T, continue_monitoring) :-
     predicted_risk(T, low).
 

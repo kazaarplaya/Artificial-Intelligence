@@ -48,6 +48,7 @@ Called from Python through pyswip with assess/16.
 %! price_condition(?Condition) is nondet.
 %  Possible outputs of the ML subsystem. 'unavailable' means no trustworthy
 %  prediction could be made.
+% Author: Shivansh Pant - PANT0108
 price_condition(high_price).
 price_condition(normal_price).
 price_condition(unavailable).
@@ -55,23 +56,27 @@ price_condition(unavailable).
 %! grid_demand_condition(?Condition) is nondet.
 %  NSW grid demand state: 'critical' at or above the training-set 95th
 %  percentile. This is grid stress, not the site's own operational need.
+% Author: Shivansh Pant - PANT0108
 grid_demand_condition(critical).
 grid_demand_condition(normal).
 
 %! battery_condition(?Condition) is nondet.
 %  Whether the site's own battery can currently supply its running loads.
 %  Declared by the site profile, not inferred from grid data.
+% Author: Shivansh Pant - PANT0108
 battery_condition(available).
 battery_condition(unavailable).
 
 %! quality_condition(?Condition) is nondet.
 %  Input-data state: suspect data contains imputed or flagged values.
+% Author: Shivansh Pant - PANT0108
 quality_condition(valid).
 quality_condition(suspect).
 quality_condition(invalid).
 
 %! recommendation_category(?Action) is nondet.
 %  Every action the system may recommend.
+% Author: Shivansh Pant - PANT0108
 recommendation_category(maintain_operations).
 recommendation_category(defer_non_essential_loads).
 recommendation_category(use_site_battery).
@@ -81,6 +86,7 @@ recommendation_category(monitor_conditions).
 
 %! action_priority(?Action, ?Priority) is nondet.
 %  Lower numbers are more urgent; used to choose the primary action.
+% Author: Shivansh Pant - PANT0108
 action_priority(request_manual_review, 1).
 action_priority(issue_price_warning, 2).
 action_priority(defer_non_essential_loads, 3).
@@ -90,12 +96,14 @@ action_priority(maintain_operations, 6).
 
 %! operational_restriction(?Restriction) is nondet.
 %  Hard restrictions every recommendation must respect.
+% Author: Shivansh Pant - PANT0108
 operational_restriction(critical_services_must_remain_active).
 operational_restriction(non_essential_loads_can_be_delayed).
 
 %! site_load(?Load, ?Class) is nondet.
 %  Electrical loads at the example water utility site. Critical loads keep
 %  drinking water safe and flowing; deferrable loads can shift by hours.
+% Author: Shivansh Pant - PANT0108
 site_load(water_treatment_process_control, critical).
 site_load(potable_water_supply_pumps, critical).
 site_load(site_safety_and_scada_systems, critical).
@@ -109,11 +117,13 @@ site_load(fleet_ev_charging, deferrable).
 
 %! safety_override is semidet.
 %  True when the ML output cannot be trusted, so economic rules must not run.
+% Author: Shivansh Pant - PANT0108
 safety_override :- ( prediction(unavailable) ; data_quality(invalid) ), !.
 
 %! confidence(-Level) is det.
 %  'high' when the probability is at least halfway from the decision
 %  threshold to certainty (in either direction), otherwise 'moderate'.
+% Author: Shivansh Pant - PANT0108
 confidence(none) :- safety_override, !.
 confidence(high) :-
     prediction(high_price), probability(P), threshold(T), P >= T + (1 - T) / 2, !.
@@ -123,6 +133,7 @@ confidence(moderate).
 
 %! near_threshold is semidet.
 %  A 'normal' prediction whose probability is still close to the threshold.
+% Author: Shivansh Pant - PANT0108
 near_threshold :-
     prediction(normal_price), probability(P), threshold(T), P > T / 2.
 
@@ -132,6 +143,7 @@ near_threshold :-
 
 % R5 (safety, evaluated first): no trustworthy prediction -> human review
 % and keep the site in its safe default state.
+% Author: Shivansh Pant - PANT0108
 rule(r5_safety_default, request_manual_review,
      'Prediction unavailable or input data invalid; an operator must review before acting.') :-
     safety_override.
@@ -186,6 +198,7 @@ rule(r8_suspect_data, request_manual_review,
 
 %! deferred_loads(-Loads) is det.
 %  Loads to defer: only deferrable loads, and only if deferral was recommended.
+% Author: Shivansh Pant - PANT0108
 deferred_loads(Loads) :-
     (   rule(_, defer_non_essential_loads, _)
     ->  findall(L, site_load(L, deferrable), Loads)
@@ -194,6 +207,7 @@ deferred_loads(Loads) :-
 
 %! constraint_violation(-Violation) is nondet.
 %  Succeeds for every way a result would break a hard restriction.
+% Author: Shivansh Pant - PANT0108
 constraint_violation(critical_load_deferred(L)) :-
     deferred_loads(Loads), member(L, Loads), site_load(L, critical).
 constraint_violation(no_action_recommended) :-
@@ -202,6 +216,7 @@ constraint_violation(no_action_recommended) :-
 %! primary_action(+Actions, -Primary) is det.
 %  Manual review leads only under a safety override; for suspect data it is
 %  advisory, so the most urgent operational action leads instead.
+% Author: Shivansh Pant - PANT0108
 primary_action(_, request_manual_review) :- safety_override, !.
 primary_action(Actions, Primary) :-
     member(Primary, Actions), Primary \== request_manual_review, !.
@@ -215,6 +230,7 @@ primary_action(_, request_manual_review).
 %!           +Quality, +Issues) is det.
 %  Replaces the asserted facts with a validated case. Any unexpected value
 %  forces the case to invalid data quality, so it is handled by rule r5.
+% Author: Shivansh Pant - PANT0108
 load_case(Prediction0, Probability0, Threshold0, Demand0, Battery0, Quality0, Issues) :-
     retractall(prediction(_)), retractall(probability(_)), retractall(threshold(_)),
     retractall(grid_demand(_)), retractall(site_battery(_)),
@@ -238,6 +254,7 @@ load_case(Prediction0, Probability0, Threshold0, Demand0, Battery0, Quality0, Is
 %! checked_atom(+Name, +Raw, :Domain, +Fallback, -Value) is det.
 %  Accepts Raw only if it is an atom in Domain. An unknown value is recorded
 %  as a quality issue and the case is marked invalid.
+% Author: Shivansh Pant - PANT0108
 checked_atom(Name, Raw, Domain, Fallback, Value) :-
     (   atom(Raw), call(Domain, Raw)
     ->  Value = Raw
@@ -249,6 +266,7 @@ checked_atom(Name, Raw, Domain, Fallback, Value) :-
 
 %! checked_number(+Name, +Raw, +Fallback, -Value) is det.
 %  Accepts Raw only if it is a number in [0, 1]; anything else invalidates the case.
+% Author: Shivansh Pant - PANT0108
 checked_number(Name, Raw, Fallback, Value) :-
     (   number(Raw), Raw >= 0, Raw =< 1
     ->  Value = Raw
@@ -263,6 +281,7 @@ checked_number(Name, Raw, Fallback, Value) :-
 %!        -Deferred, -Violations, -Confidence, -Quality, -Issues) is det.
 %  Evaluates one case and returns the recommendation as plain lists so that
 %  pyswip can convert every output to Python values.
+% Author: Shivansh Pant - PANT0108
 assess(Prediction, Probability, Threshold, Demand, Battery, Quality0, Issues0,
        Primary, Actions, RuleIds, Explanations, Deferred, Violations,
        Confidence, Quality, Issues) :-

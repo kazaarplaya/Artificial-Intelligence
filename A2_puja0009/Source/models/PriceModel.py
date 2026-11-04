@@ -75,6 +75,7 @@ class PriceModel:
         Args:
             site_battery: declared state of the site's own battery
                           ('available' or 'unavailable'); the dataset holds grid data only.
+        Author: Shivansh Pant - PANT0108
         """
         self.site_battery = site_battery
         self.model = None
@@ -97,6 +98,7 @@ class PriceModel:
 
         Returns:
             Copy with short gaps forward-filled and a was_imputed flag.
+        Author: Shivansh Pant - PANT0108
         """
         data = df.copy()
         flagged = data["was_imputed"].astype(bool) if "was_imputed" in data else \
@@ -119,6 +121,7 @@ class PriceModel:
         Returns:
             One row per hour t with features, target_timestamp, next_price and
             is_high_price_next (NaN when t + 1 is unknown). Warm-up rows are dropped.
+        Author: Shivansh Pant - PANT0108
         """
         out = pd.DataFrame({"timestamp": df["timestamp"]})
         for c in cls.BASE_COLUMNS:
@@ -161,7 +164,11 @@ class PriceModel:
 
     @staticmethod
     def _feature_columns(features: pd.DataFrame) -> list:
-        """Model input columns: everything except identifiers and labels."""
+        """
+        Model input columns: everything except identifiers and labels.
+
+        Author: Shivansh Pant - PANT0108
+        """
         excluded = {"timestamp", "target_timestamp", "next_price", "is_high_price_next"}
         return [c for c in features.columns if c not in excluded]
 
@@ -176,6 +183,7 @@ class PriceModel:
         Logistic Regression is scaled. Class weights counter the rarity of spikes.
         Returns:
             Algorithm name -> list of (params, unfitted pipeline).
+        Author: Shivansh Pant - PANT0108
         """
         logistic = [({"C": c}, Pipeline([
             ("impute", SimpleImputer(strategy="median")),
@@ -192,7 +200,11 @@ class PriceModel:
 
     @classmethod
     def _split(cls, features: pd.DataFrame) -> dict:
-        """Splits by target hour so no training label falls inside a later period."""
+        """
+        Splits by target hour so no training label falls inside a later period.
+
+        Author: Shivansh Pant - PANT0108
+        """
         tz = features["timestamp"].dt.tz
         train_end = pd.Timestamp(cls.TRAIN_END, tz=tz)
         val_end = pd.Timestamp(cls.VALIDATION_END, tz=tz)
@@ -212,6 +224,7 @@ class PriceModel:
             threshold: probability at or above which a spike is predicted.
             high_now: optional current-hour high flags, to split recall into
                       spike onsets and continuing spikes.
+        Author: Shivansh Pant - PANT0108
         """
         pred = (np.asarray(prob) >= threshold).astype(int)
         tn, fp, fn, tp = confusion_matrix(y, pred, labels=[0, 1]).ravel()
@@ -234,14 +247,22 @@ class PriceModel:
 
     @classmethod
     def _tune_threshold(cls, y, prob) -> float:
-        """Threshold that maximises F2 on the validation year."""
+        """
+        Threshold that maximises F2 on the validation year.
+
+        Author: Shivansh Pant - PANT0108
+        """
         scores = [fbeta_score(y, (prob >= t).astype(int), beta=cls.BETA, zero_division=0)
                   for t in cls.THRESHOLDS]
         return float(cls.THRESHOLDS[int(np.argmax(scores))])
 
     @staticmethod
     def _save_figures(curves: dict, results: dict, report_dir: Path) -> None:
-        """Saves validation PR curves and test confusion matrices for the report."""
+        """
+        Saves validation PR curves and test confusion matrices for the report.
+
+        Author: Shivansh Pant - PANT0108
+        """
         fig, ax = plt.subplots(figsize=(6, 4.5))
         for name, (y, prob) in curves.items():
             precision, recall, _ = precision_recall_curve(y, prob)
@@ -289,6 +310,7 @@ class PriceModel:
 
         Returns:
             Dictionary of all recorded metrics.
+        Author: Shivansh Pant - PANT0108
         """
         print("\n========== Price Spike | Training ==========")
         print("Candidates: Logistic Regression, Random Forest | Horizon: 1 hour")
@@ -423,6 +445,7 @@ class PriceModel:
 
         Returns:
             (summary dictionary, per-hour decision table).
+        Author: Shivansh Pant - PANT0108
         """
         threshold = self.metadata["classification_threshold"]
         rows = []
@@ -451,6 +474,7 @@ class PriceModel:
         alerted = t.actions.apply(lambda a: bool(self.ALERT_ACTIONS & set(a.split("|"))))
 
         def rate(hit, of):
+            """Author: Shivansh Pant - PANT0108"""
             return float((hit & of).sum() / of.sum()) if of.any() else float("nan")
 
         summary = {
@@ -476,7 +500,11 @@ class PriceModel:
     # ------------------------------------------------------------------
 
     def _load(self, model_path: str) -> None:
-        """Loads the fitted pipeline and metadata written by train_eval()."""
+        """
+        Loads the fitted pipeline and metadata written by train_eval().
+
+        Author: Shivansh Pant - PANT0108
+        """
         if self.model is None:
             saved = joblib.load(model_path)
             self.model, self.metadata = saved["model"], saved["metadata"]
@@ -490,6 +518,7 @@ class PriceModel:
 
         Returns:
             (quality, issues) with quality 'valid', 'suspect' or 'invalid'.
+        Author: Shivansh Pant - PANT0108
         """
         need = self.HISTORY_HOURS + 1
         if len(window) < need:
@@ -530,6 +559,7 @@ class PriceModel:
 
         Returns:
             Dictionary with the prediction, probability and recommendation.
+        Author: Shivansh Pant - PANT0108
         """
         self._load(model_path)
         window = self._causal_fill(instance.reset_index().sort_values("timestamp"))
@@ -587,6 +617,7 @@ class PriceModel:
         Args:
             facts: prediction, probability, threshold, grid_demand,
                    site_battery, data_quality and quality_issues.
+        Author: Shivansh Pant - PANT0108
         """
         try:
             if self._prolog is None:
@@ -625,20 +656,36 @@ class PriceModel:
 
 
 def _prolog_atom(value) -> str:
-    """Passes only plain lowercase atoms; anything else becomes an atom Prolog rejects as invalid."""
+    """
+    Passes only plain lowercase atoms; anything else becomes an atom Prolog rejects as invalid.
+
+    Author: Shivansh Pant - PANT0108
+    """
     return value if isinstance(value, str) and re.fullmatch(r"[a-z][a-z_]*", value) else "unrecognised"
 
 
 def _prolog_number(value) -> str:
-    """Formats a number for Prolog; non-finite values become -1, which Prolog rejects."""
+    """
+    Formats a number for Prolog; non-finite values become -1, which Prolog rejects.
+
+    Author: Shivansh Pant - PANT0108
+    """
     return repr(float(value)) if np.isfinite(value) else "-1"
 
 
 def _prolog_string(value) -> str:
-    """Quotes text as a Prolog string."""
+    """
+    Quotes text as a Prolog string.
+
+    Author: Shivansh Pant - PANT0108
+    """
     return '"' + str(value).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ") + '"'
 
 
 def _text(value) -> str:
-    """Converts a pyswip atom, string or term to Python text."""
+    """
+    Converts a pyswip atom, string or term to Python text.
+
+    Author: Shivansh Pant - PANT0108
+    """
     return value.decode() if isinstance(value, bytes) else str(value)

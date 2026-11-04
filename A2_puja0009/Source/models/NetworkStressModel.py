@@ -67,7 +67,11 @@ DEFAULT_RULES_PATH = A2_DIR / "prolog" / "stress_rules.pl"
 
 
 def normalise_data(data: pd.DataFrame) -> pd.DataFrame:
-    """Accept pipeline DatetimeIndex or parquet timestamp column; preserve input."""
+    """
+    Accept pipeline DatetimeIndex or parquet timestamp column; preserve input.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     df = data.copy()
     if "timestamp" not in df.columns:
         if not isinstance(df.index, pd.DatetimeIndex):
@@ -81,7 +85,11 @@ def normalise_data(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def require_numeric(data: pd.DataFrame, columns: list[str]) -> None:
-    """Reject missing or invalid model inputs with a useful error."""
+    """
+    Reject missing or invalid model inputs with a useful error.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     missing = sorted(set(columns) - set(data.columns))
     if missing:
         raise ValueError(f"Missing network-stress features: {missing}")
@@ -93,7 +101,11 @@ def require_numeric(data: pd.DataFrame, columns: list[str]) -> None:
 
 
 def severity_points(series, feature, thresholds):
-    """Assign severity points (0-3) using historical quantiles."""
+    """
+    Assign severity points (0-3) using historical quantiles.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     q75, q90, q97 = thresholds.loc[feature, STRESS_QUANTILES]
 
     return np.select(
@@ -104,7 +116,11 @@ def severity_points(series, feature, thresholds):
 
 
 def prepare_modelling_data(data):
-    """Create stress targets and chronological dataset partitions."""
+    """
+    Create stress targets and chronological dataset partitions.
+
+    Author: Hans Pujalte - PUJA0009
+    """
 
     df = normalise_data(data)
     if len(df) < 10:
@@ -203,14 +219,22 @@ def prepare_modelling_data(data):
 
 
 def split_xy(data, features):
-    """Separate features and encoded stress labels."""
+    """
+    Separate features and encoded stress labels.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     X = data[features]
     y = data["stress_target_1h"].map(CLASS_TO_NUMBER).astype(int)
     return X, y
 
 
 def build_models():
-    """Create the candidate classifiers."""
+    """
+    Create the candidate classifiers.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     return {
         "Random Forest": RandomForestClassifier(
             n_estimators=500,
@@ -236,7 +260,11 @@ def build_models():
 
 
 def fit_model(model, X, y):
-    """Fit model, accounting for class imbalance."""
+    """
+    Fit model, accounting for class imbalance.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     if isinstance(model, XGBClassifier):
         weights = compute_sample_weight("balanced", y)
         model.fit(X, y, sample_weight=weights)
@@ -245,7 +273,11 @@ def fit_model(model, X, y):
 
 
 def evaluate_model(y_true, y_pred):
-    """Calculate classification metrics."""
+    """
+    Calculate classification metrics.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     critical = CLASS_TO_NUMBER["critical"]
 
     return {
@@ -265,7 +297,11 @@ def evaluate_model(y_true, y_pred):
 
 
 def train_pipeline(data: pd.DataFrame, model_dir: Path = DEFAULT_MODEL_DIR):
-    """Train, compare, evaluate and save network-stress models."""
+    """
+    Train, compare, evaluate and save network-stress models.
+
+    Author: Hans Pujalte - PUJA0009
+    """
 
     # Prepare datasets
     model_dir = Path(model_dir)
@@ -390,7 +426,11 @@ def normalise_timestamp(
     timestamp: str,
     timestamps: pd.Series,
 ) -> pd.Timestamp:
-    """Match an input timestamp to the dataset timezone."""
+    """
+    Match an input timestamp to the dataset timezone.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     requested = pd.Timestamp(timestamp)
     timezone = timestamps.dt.tz
 
@@ -409,7 +449,11 @@ def normalise_timestamp(
 
 
 def load_prolog_class() -> Any:
-    """Import PySwip without passing CLI arguments to SWI-Prolog."""
+    """
+    Import PySwip without passing CLI arguments to SWI-Prolog.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     original_args = sys.argv[:]
 
     try:
@@ -426,7 +470,11 @@ def query_values(
     query: str,
     variable: str,
 ) -> list[str]:
-    """Retrieve unique results from a Prolog query."""
+    """
+    Retrieve unique results from a Prolog query.
+
+    Author: Hans Pujalte - PUJA0009
+    """
     return list(dict.fromkeys(
         str(result[variable])
         for result in prolog.query(query)
@@ -437,12 +485,17 @@ class NetworkStressModel:
     """Network-stress subsystem used by A2's shared entry points."""
 
     def __init__(self, model_dir: Path = DEFAULT_MODEL_DIR, rules_path: Path = DEFAULT_RULES_PATH):
+        """Author: Hans Pujalte - PUJA0009"""
         self.model_dir = Path(model_dir)
         self.rules_path = Path(rules_path)
         self.bundle = None
 
     def train_eval(self, training_set: pd.DataFrame) -> dict[str, Any]:
-        """Compare classifiers, evaluate the selected model and save its bundle."""
+        """
+        Compare classifiers, evaluate the selected model and save its bundle.
+
+        Author: Hans Pujalte - PUJA0009
+        """
         print("\n========== Network Stress | Training ==========")
         print("Candidates: Random Forest, XGBoost | Horizon: 1 hour")
         print("Selection: Highest validation macro-F1")
@@ -465,11 +518,19 @@ class NetworkStressModel:
         return result
 
     def train(self, training_set: pd.DataFrame) -> dict[str, Any]:
-        """Support the original model-placeholder interface."""
+        """
+        Support the original model-placeholder interface.
+
+        Author: Hans Pujalte - PUJA0009
+        """
         return self.train_eval(training_set)
 
     def _load_model(self) -> dict[str, Any]:
-        """Load the trained bundle once per model instance."""
+        """
+        Load the trained bundle once per model instance.
+
+        Author: Hans Pujalte - PUJA0009
+        """
         # Reuse the loaded model for subsequent predictions.
         if self.bundle is None:
             path = self.model_dir / "network_stress_model.joblib"
@@ -481,7 +542,11 @@ class NetworkStressModel:
         return self.bundle
 
     def inference(self, instance: pd.DataFrame) -> dict[str, Any]:
-        """Predict from the latest row of sorted, timezone-aware DatetimeIndex history."""
+        """
+        Predict from the latest row of sorted, timezone-aware DatetimeIndex history.
+
+        Author: Hans Pujalte - PUJA0009
+        """
         if instance.empty:
             raise ValueError("No observations provided.")
         if not isinstance(instance.index, pd.DatetimeIndex) or instance.index.tz is None:
@@ -530,7 +595,11 @@ class NetworkStressModel:
         }
 
     def _explain(self, risk: str, import_share: float, curtailment: float):
-        """Use isolated facts for this call; recommendations are advisory only."""
+        """
+        Use isolated facts for this call; recommendations are advisory only.
+
+        Author: Hans Pujalte - PUJA0009
+        """
         if not self.rules_path.is_file():
             raise FileNotFoundError(f"Stress rules not found: {self.rules_path}")
         prolog = load_prolog_class()()
@@ -552,7 +621,11 @@ class NetworkStressModel:
 
 
 def print_result(result: dict[str, Any]) -> None:
-    """Helper to display the ML prediction and symbolic recommendations."""
+    """
+    Helper to display the ML prediction and symbolic recommendations.
+
+    Author: Hans Pujalte - PUJA0009
+    """
 
     print("\n--- Network Stress Prediction ---")
     print(f"Observation: {result['timestamp']}")
