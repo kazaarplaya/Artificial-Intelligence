@@ -21,9 +21,9 @@ A2 contains only `Source`, `Reports`, and `Misc` at its top level.
 - `Misc/data/raw` and `Misc/data/processed`: downloaded and prepared datasets.
 - `Misc/saved_models`: all fitted models and network-stress metadata.
 - `Misc/notebooks`: network-stress training and historical inference notebooks.
-- `Reports/data_pipeline`: cleaning, transformation and exploratory modelling reports.
-- `Reports/price`: price evaluation reports and charts.
-- `Reports/demand`, `network_stress`, `renewable`, and `inference`: reserved output folders; these subsystems currently print their results, and demand also displays a chart.
+- `Misc/data_pipeline`: cleaning, transformation and exploratory modelling reports.
+- `Misc/price`: price evaluation reports and charts.
+- `Reports`: submission documents, including the self-assessment PDF. Other subsystems currently print their results, and demand also displays a chart.
 
 `config.py` resolves default locations relative to this source directory, independently
 of the working directory. Explicit `--input` paths are relative to your current directory.
@@ -57,7 +57,7 @@ python A2_puja0009/Source/A1_data_pipeline/run_pipeline.py
 
 This fetches the configured historical period, cleans and transforms the data,
 and runs A1's exploratory modelling. Data is saved under `Misc/data` and reports
-under `Reports/data_pipeline`. The date constants are in that script.
+under `Misc/data_pipeline`. The date constants are in that script.
 
 ## Machine-learning training
 

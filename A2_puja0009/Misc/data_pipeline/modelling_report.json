@@ -1,0 +1,25 @@
+{
+  "features_selected": [
+    "curtailment",
+    "curtailment_wind",
+    "demand",
+    "flow_exports",
+    "flow_imports",
+    "generation_renewable",
+    "price",
+    "renewable_proportion",
+    "emissions"
+  ],
+  "pca": 5,
+  "kmeans_clusters": 3,
+  "contamination": 0.02,
+  "cluster_counts": {
+    "0": 38508,
+    "1": 1415,
+    "2": 12877
+  },
+  "anomaly_counts": {
+    "-1": 1056,
+    "1": 51744
+  }
+}

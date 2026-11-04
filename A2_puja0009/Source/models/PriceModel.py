@@ -27,9 +27,9 @@ from sklearn.preprocessing import StandardScaler
 
 
 # Resolve saved artifacts and rules from A2, independently of the launch directory.
-from config import SAVED_MODELS_DIR, REPORTS_DIR, RULES_DIR
+from config import SAVED_MODELS_DIR, PRICE_REPORT_DIR, RULES_DIR
 DEFAULT_MODEL_PATH = str(SAVED_MODELS_DIR / "price_spike_model.joblib")
-DEFAULT_REPORT_DIR = str(REPORTS_DIR / "price")
+DEFAULT_REPORT_DIR = str(PRICE_REPORT_DIR)
 
 
 class PriceModel:

@@ -18,7 +18,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from A1_data_pipeline.DataLoader import DataLoader
-from config import RAW_DATA_DIR, PROCESSED_DATA_DIR, REPORTS_DIR as A2_REPORTS_DIR, ENV_PATH
+from config import RAW_DATA_DIR, PROCESSED_DATA_DIR, DATA_PIPELINE_REPORT_DIR, ENV_PATH
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -36,7 +36,7 @@ RAW_OUTPUT_PATH: Path = RAW_DATA_DIR / "electricity_raw.parquet"
 CLEAN_DATA_DIR = PROCESSED_DATA_DIR
 CLEAN_OUTPUT_PATH = CLEAN_DATA_DIR / "electricity_cleaned.parquet"
 TRANSFORMED_OUTPUT_PATH = CLEAN_DATA_DIR / "electricity_transformed.parquet"
-REPORTS_DIR = A2_REPORTS_DIR / "data_pipeline"
+REPORTS_DIR = DATA_PIPELINE_REPORT_DIR
 MODELLED_OUTPUT_PATH = CLEAN_DATA_DIR / "electricity_modelled.parquet"
 
 

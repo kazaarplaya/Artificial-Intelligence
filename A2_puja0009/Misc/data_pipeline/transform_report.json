@@ -1,0 +1,113 @@
+{
+  "rows_before": 58992,
+  "rows_after": 52800,
+  "first_timestamp": "2020-09-15T00:00:00+10:00",
+  "last_timestamp": "2026-09-23T23:00:00+10:00",
+  "steps": [
+    {
+      "step": "trim_time_window",
+      "start": "2020-09-08T00:00:00+10:00",
+      "rows_removed": 6024,
+      "reason": "Before source coverage, curtailment is recorded as 0, not missing, so earlier rows would teach the model fake zeros."
+    },
+    {
+      "step": "drop_redundant_columns",
+      "columns_dropped": [
+        "energy",
+        "demand_energy",
+        "demand_gross_energy",
+        "generation_renewable_energy",
+        "generation_renewable_with_storage_energy",
+        "curtailment_energy",
+        "curtailment_solar_utility_energy",
+        "curtailment_wind_energy",
+        "flow_exports_energy",
+        "flow_imports_energy",
+        "market_value",
+        "storage_battery"
+      ],
+      "columns_kept": [
+        "curtailment",
+        "curtailment_solar_utility",
+        "curtailment_wind",
+        "demand",
+        "demand_gross",
+        "flow_exports",
+        "flow_imports",
+        "generation_renewable",
+        "generation_renewable_with_storage",
+        "price",
+        "renewable_proportion",
+        "renewable_with_storage_proportion",
+        "emissions",
+        "power"
+      ],
+      "reason": "Duplicate columns would count the same information twice in distance-based models like clustering."
+    },
+    {
+      "step": "fill_short_gaps",
+      "max_gap_hours": 3,
+      "values_filled": {
+        "flow_exports": 4,
+        "flow_imports": 4
+      },
+      "values_left_missing": {
+        "flow_exports": 0,
+        "flow_imports": 0
+      },
+      "rows_flagged": 4,
+      "reason": "The remaining gaps are single missing hours at 02:00 when daylight saving starts, so a straight line between neighboring hours is a fair estimate."
+    },
+    {
+      "step": "flag_negative_curtailment",
+      "negative_values": {
+        "curtailment": 1157,
+        "curtailment_solar_utility": 1218,
+        "curtailment_wind": 152
+      },
+      "rows_flagged": 1348,
+      "renewable_proportion_above_100": 0,
+      "reason": "Curtailment can't really be negative, but keep source values and flag these hours as suspect."
+    },
+    {
+      "step": "add_time_features",
+      "columns_added": [
+        "hour_sin",
+        "hour_cos",
+        "day_of_week_sin",
+        "day_of_week_cos",
+        "month_sin",
+        "month_cos",
+        "is_weekend"
+      ],
+      "reason": "Demand and prices follow daily, weekly, and yearly cycles; sine and cosine keep each cycle's ends close together."
+    },
+    {
+      "step": "add_lag_features",
+      "columns_added": [
+        "price_lag_1h",
+        "price_lag_24h",
+        "price_lag_168h",
+        "price_rolling_mean_24h",
+        "price_rolling_std_24h",
+        "demand_lag_1h",
+        "demand_lag_24h",
+        "demand_lag_168h",
+        "demand_rolling_mean_24h",
+        "demand_rolling_std_24h",
+        "generation_renewable_lag_1h",
+        "generation_renewable_lag_24h",
+        "generation_renewable_lag_168h",
+        "generation_renewable_rolling_mean_24h",
+        "generation_renewable_rolling_std_24h",
+        "curtailment_lag_1h",
+        "curtailment_lag_24h",
+        "curtailment_lag_168h",
+        "curtailment_rolling_mean_24h",
+        "curtailment_rolling_std_24h"
+      ],
+      "rows_dropped_for_history": 168,
+      "reason": "Electricity data depends on recent history; use only past values so the model never sees the future."
+    }
+  ]
+}
